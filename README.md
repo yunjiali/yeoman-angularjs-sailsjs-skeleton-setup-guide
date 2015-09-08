@@ -35,12 +35,27 @@ TBD
 # Config Angularjs
 This section will introduce how to apply a template (color-admin) to the skeleton angularjs project
 ## Javascript
+
 ## CSS
 * install font-awesome
+
 ```bower install font-awesome```
-And add font-awesome into bower.json:
-```"font-awesome":"~x.x.x"```
+
+And add font-awesome into bower.json
+
+* Delete main.css in under styles folder, and remove the <link> tag in index.html:
+
+```<link rel="stylesheet" href="styles/main.css">```
+
+### Specific to Color-Admin template
+* Copy template_content_html/assets/less/*.* to styles folder in angularjs project. The ```style.less``` file is the root less file referencing to everything else.
+* Remove bootstrap folder just copied under styles. This is because bootstrap less has already been installed as bower component
+* Remove bootstrap reference in style.less
+* In index.html, add ```<link href="styles/style.less" rel="stylesheet/less" type="text/css" />``` under ```<!-- build:css(.tmp) styles/main.css -->```
+
 ## Fonts
+
+## HTML
 
 
 
