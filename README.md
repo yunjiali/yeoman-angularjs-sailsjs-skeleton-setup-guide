@@ -28,6 +28,14 @@ yo angular [appname]
 * Which modules would yo ulike to include: all
 This may take a few minutes
 * When you are asked which angularjs version you want to install, just choose the latest one
+* After the above steps are finished, please try:
+
+```grunt serve```
+
+To see whether the webpage can be started. 
+* Sometimes, the imagemin.js may cause problem. We need to install imagemin again:
+
+```npm install grunt-contrib-imagemin --save-dev```
 
 ## Init sailsjs
 TBD
