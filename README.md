@@ -34,8 +34,6 @@ TBD
 
 # Config Angularjs
 This section will introduce how to apply a template (color-admin) to the skeleton angularjs project
-## Javascript
-
 ## CSS
 * install font-awesome
 
@@ -53,9 +51,23 @@ And add font-awesome into bower.json
 * Remove bootstrap reference in style.less
 * In index.html, add ```<link href="styles/style.less" rel="stylesheet/less" type="text/css" />``` under ```<!-- build:css(.tmp) styles/main.css -->```
 
-## Fonts
+#### Fonts
+* Add the following line under: ```<!-- build:css(.tmp) styles/main.css -->```
+
+```<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">```
+
+## Javascript
+
+### Specific to Color-Admin template
+* Create a js folder under app folder
+* Copy template_content_html/assets/js/apps.min.js to the newly created js folder
+* Add the following line to ```<!-- build:js({.tmp,app}) scripts/scripts.js -->``` at the end of the page:
+
+```<script src="js/apps.min.js"></script>```
 
 ## HTML
+* In <html> add lang=en
+* 
 
 
 
