@@ -73,6 +73,14 @@ And add font-awesome into bower.json
 
 ```<script src="js/apps.min.js"></script>```
 
+* Install pace.js:
+
+```bower install pace```
+
+Then add ```"pace":"~x.x.x"``` into bower.json
+
+
+
 ## HTML
 * In <html> add lang=en
 * 
