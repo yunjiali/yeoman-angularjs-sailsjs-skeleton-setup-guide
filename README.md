@@ -910,9 +910,30 @@ This will automatically generate rotated log when you start pm2
 #FAQ
 ## Server
 ## Client
-* I got this error on the angularjs webpage: ```Uncaught Error: [$injector:unpr] Unknown provider: $$asyncCallbackProvider <- $$asyncCallback <- $animate <- $compile```
+### Angularjs version problem
+I got this error on the angularjs webpage: ```Uncaught Error: [$injector:unpr] Unknown provider: $$asyncCallbackProvider <- $$asyncCallback <- $animate <- $compile```
 
 This is usually because the version of angular-animate module is different from angularjs version. Use Check the bower.json file for angular-animate and use ```bower install angular-animate``` to get the correct version.
+
+### Grunt ng-annotate version problem
+I got this error when I run ```grunt build:sometarget```
+
+```
+Running "ngAnnotate:dist" (ngAnnotate) task
+Warning: Cannot assign to read only property '$methodName' of false Use --force to continue.
+```
+
+This is because the grunt-ng-annotate model is too old. You need to change the version number in package.json and npm install the latest version.
+
+### Grunt build stuck
+Sometimes, the application build process will stuck in:
+
+```
+Running "uglify:generated" (uglify) task
+File dist/scripts/oldieshim.js created: 118.72 kB → 30.09 kB
+```
+
+Just wait a little bit. It would be fine. I don't know why it takes so long sometimes.
 
 
 # Some deprecated content
