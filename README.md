@@ -788,6 +788,54 @@ Here, login() function refers to the loginForm in login.html
 
 * Now after the client and server are all setup, you can test the login function. 
 
+## Add reset password function
+The waterlock has a build-in function to reset password through email. You need the following configurations before using it:
+
+### Waterlock.js
+***Firstly make sure that you have installed the latest waterlock and waterlock-local-auth model. The old version has problems to send reset email with old version of nodemailer.***
+
+* In ```authMethod```, you need to set the ```tokens``` to ```true``` under waterlock-local-auth
+* Then you need to select a mail service provider. You can use dummy mail server (i.e. remove all the seetings in ```mail:{}```, however, it's quite likely the email can't be sent because you are in dynamic IP.
+* [Here] (https://github.com/waterlock/waterlock-local-auth/issues/7) is the link to explain the reset password workflow. And [here](http://stackoverflow.com/questions/35260067/sails-waterlock-password-reset-flow/35543141#35543141) is my explanation. 
+* In short, you have to click the link in the reset password email first and then ```forwardUrl``` will point you to a form to input new password. The form will post to ```/auth/reset?password=newpassword```.
+
+
+```
+	{
+      name:'waterlock-local-auth',
+      passwordReset:{
+        tokens: true,
+        mail: {
+          options:{
+            service: 'SendGrid',
+            //direct:true,
+            auth: {
+              user: 'myuser',
+              pass: 'mypass'
+            }
+          },
+          from: 'admin@somedomain.org',
+          subject: 'Your Synote password reset!',
+          forwardUrl: 'http://localhost:9000/#/password'
+        },
+        template:{
+          file: '../views/email.jade',
+          vars:{}
+        }
+      },
+      createOnNotFound: false
+    }
+
+```
+
+I use [SendGrid] (http://app.sendgrid.com) as it can hide the actual email address sending the reset password email. You can also use gmail and hotmail.
+
+### Client side
+You need to programme on the client-side to proivde:
+
+* A programme to post to ```/auth/reset?email=emailaddress```
+* A page containing reset password form
+* A programme to post the reset password form to ```/auth/reset?password=newpassword```
 
 # Deployment
 * Login to your vm and git clone the repository you want to deploy. You can only clone the server side sailsjs code if necessary.
