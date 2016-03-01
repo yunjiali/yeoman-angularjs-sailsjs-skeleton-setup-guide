@@ -55,6 +55,11 @@ You need to install the following libaraies or software
 
 ```sudo ln -s /home/demoapps/.nvm/v0.10.25/bin/node /usr/bin/node```
 
+* For mocha testing, you can run:
+* If you want to run just some test cases, run:
+
+ ```NODE_ENV=test mocha test/bootstrap.test.js test/integration/**/*.test.js```
+
 #### Install mysql
 * ```sudo apt-get install mysql-server```
 * Use ```mysql -u root -p``` to check if mysql is running.
@@ -425,7 +430,8 @@ TODO
       maxAge: 30 * 24 * 60 * 60 * 1000
     },
     key:'yourapp',
-    adapter: 'redis'
+    adapter: 'redis',
+    prefix:'someprefix'
   }```
 
 ### Set Socket.io
@@ -935,44 +941,28 @@ File dist/scripts/oldieshim.js created: 118.72 kB → 30.09 kB
 
 Just wait a little bit. It would be fine. I don't know why it takes so long sometimes.
 
+### The minimised button and some other features depending on INSPINIA template js file doesn't work
 
-# Some deprecated content
-## Add grunt-less support
-* Install grunt less support if you want to use less instead of css:
+This is because some of the javascript function sin INSPINIA is defined in ```js/vendor.js``` and this file by default is not included in the grunt build. So we need to include it in index.html. Write the following code after ```endbower``` and ```endbuild```:
 
-```npm install grunt-contrib-less```
+```
+<!-- endbower -->
+    <!-- endbuild -->
 
-and add "grunt-contrib-less@x.x.x" into package.json
+    <!-- build:js({.tmp,app}) scripts/main.js -->
+    <script src="js/vendor.js"></script>
+    <!-- endbuild -->
+```
 
-* (Optional) See [this link](https://github.com/twbs/bootstrap/issues/16663) about an issue in bootstrap's bower. The new version of bootstrap's bower may miss the bootstrap css file in "main". So...
-* Add less task in Gruntfile.js:
-	* Add the following code into watch:{}
-	```
-		less:{
-        files:['<%=yeoman.app%>/less/**/*.less'],
-        tasks:['less']
-      }
-  ```
-  	* Add the following code under grunt.initConfig after watch:{}
-  	```
-  	less: {
-      dist: {
-        files: {
-          '<%= yeoman.app %>/styles/main.css': ['<%= yeoman.app %>/less/style.less']
-        },
-        options: {
-          sourceMap: true,
-          sourceMapFilename: '<%= yeoman.app %>/styles/main.css.map',
-          sourceMapBasepath: '<%= yeoman.app %>/',
-          sourceMapRootpath: '/'
-        }
-      }
-    },
-    ```
-	* add 'less' into concurrent:{dist:[]}
-	* add 'less' into grunt.registerTask('serve'...) under grunt.task.run([])
-	* add 'less' into grunt.registerTask('test',[]);
+###aProvider injection error after grunt minify
 
+In the deployment server, you may get this error:
 
+```Error: [$injector:unpr] Unknown provider: aProvider <- a```
 
+But it never happens on development environment.
 
+The problem is that the minified programme change the name of the variables, which cannot be recognised by angularjs. Check the following:
+
+* In ```app.js```, anything in ```app.run```,```app.config```, etc. are wrapped as arrays instead of simply ```{attribute:function(variable){}}```, this will cause problem. Change it to ```{attribute:['variable', function(varible){}]```
+* Check the same for all the services and controllers.
