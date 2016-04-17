@@ -13,7 +13,7 @@ You need to install the following libaraies or software
 ## Server setup in Ubuntu 14.04
 ### Pre-setup phrase
 * Create ssh key and add new users follow [this tutorial](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04)
-* Add a new user, for example ```demo``` and choose a password
+* Add a new user, for example ```demo``` and choose a password: ```adduser demo```
 * Add your new user to sudo group: ```gpasswd -a demo sudo```
 * Generate an ssh key: ```ssh-keygen``` and enter the file name you want to save the ssh key
 * Add the key to newly created user ```demo```
@@ -61,14 +61,13 @@ You need to install the following libaraies or software
 * Change max_allowed_packet: sometimes, we need to write large amount of data into database, so we need to change this attribute to a larger number, 512MB for example:
 
 	* Use ```mysql --help --verbose``` to list the possible positions for ```my.cnf``` (Look at the long text, it's somewhere in the middle). In Ubuntu, it will be ```/etc/mysql/my.cnf```
-	* Locate the ```[mysqld]``` section and ```max_allowed_package``` attribute, change it to 512MB
+	* Locate the ```[mysqld]``` section and ```max_allowed_packet``` attribute, change it to 512MB
 	* Restart mysql ```sudo /etc/init.d/mysql restart```
 
 
 
 #### Install Redis
-* Have a look at [this tut
-* orial](https://www.digitalocean.com/community/tutorials/how-to-configure-a-redis-cluster-on-ubuntu-14-04)
+* Have a look at [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-configure-a-redis-cluster-on-ubuntu-14-04)
 * Execute ```sudo add-apt-repository ppa:chris-lea/redis-server```
 * Then ```sudo apt-get update```
 * Then ```sudo apt-get install redis-server```
