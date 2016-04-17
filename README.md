@@ -55,6 +55,11 @@ You need to install the following libaraies or software
 
 ```sudo ln -s /home/demoapps/.nvm/v0.10.25/bin/node /usr/bin/node```
 
+* For mocha testing, you can run:
+* If you want to run just some test cases, run:
+
+ ```NODE_ENV=test mocha test/bootstrap.test.js test/integration/**/*.test.js```
+
 #### Install mysql
 * ```sudo apt-get install mysql-server```
 * Use ```mysql -u root -p``` to check if mysql is running.
@@ -424,7 +429,8 @@ TODO
       maxAge: 30 * 24 * 60 * 60 * 1000
     },
     key:'yourapp',
-    adapter: 'redis'
+    adapter: 'redis',
+    prefix:'someprefix'
   }```
 
 ### Set Socket.io
@@ -787,6 +793,54 @@ Here, login() function refers to the loginForm in login.html
 
 * Now after the client and server are all setup, you can test the login function. 
 
+## Add reset password function
+The waterlock has a build-in function to reset password through email. You need the following configurations before using it:
+
+### Waterlock.js
+***Firstly make sure that you have installed the latest waterlock and waterlock-local-auth model. The old version has problems to send reset email with old version of nodemailer.***
+
+* In ```authMethod```, you need to set the ```tokens``` to ```true``` under waterlock-local-auth
+* Then you need to select a mail service provider. You can use dummy mail server (i.e. remove all the seetings in ```mail:{}```, however, it's quite likely the email can't be sent because you are in dynamic IP.
+* [Here] (https://github.com/waterlock/waterlock-local-auth/issues/7) is the link to explain the reset password workflow. And [here](http://stackoverflow.com/questions/35260067/sails-waterlock-password-reset-flow/35543141#35543141) is my explanation. 
+* In short, you have to click the link in the reset password email first and then ```forwardUrl``` will point you to a form to input new password. The form will post to ```/auth/reset?password=newpassword```.
+
+
+```
+	{
+      name:'waterlock-local-auth',
+      passwordReset:{
+        tokens: true,
+        mail: {
+          options:{
+            service: 'SendGrid',
+            //direct:true,
+            auth: {
+              user: 'myuser',
+              pass: 'mypass'
+            }
+          },
+          from: 'admin@somedomain.org',
+          subject: 'Your Synote password reset!',
+          forwardUrl: 'http://localhost:9000/#/password'
+        },
+        template:{
+          file: '../views/email.jade',
+          vars:{}
+        }
+      },
+      createOnNotFound: false
+    }
+
+```
+
+I use [SendGrid] (http://app.sendgrid.com) as it can hide the actual email address sending the reset password email. You can also use gmail and hotmail.
+
+### Client side
+You need to programme on the client-side to proivde:
+
+* A programme to post to ```/auth/reset?email=emailaddress```
+* A page containing reset password form
+* A programme to post the reset password form to ```/auth/reset?password=newpassword```
 
 # Deployment
 * Login to your vm and git clone the repository you want to deploy. You can only clone the server side sailsjs code if necessary.
@@ -886,44 +940,28 @@ File dist/scripts/oldieshim.js created: 118.72 kB → 30.09 kB
 
 Just wait a little bit. It would be fine. I don't know why it takes so long sometimes.
 
+### The minimised button and some other features depending on INSPINIA template js file doesn't work
 
-# Some deprecated content
-## Add grunt-less support
-* Install grunt less support if you want to use less instead of css:
+This is because some of the javascript function sin INSPINIA is defined in ```js/vendor.js``` and this file by default is not included in the grunt build. So we need to include it in index.html. Write the following code after ```endbower``` and ```endbuild```:
 
-```npm install grunt-contrib-less```
+```
+<!-- endbower -->
+    <!-- endbuild -->
 
-and add "grunt-contrib-less@x.x.x" into package.json
+    <!-- build:js({.tmp,app}) scripts/main.js -->
+    <script src="js/vendor.js"></script>
+    <!-- endbuild -->
+```
 
-* (Optional) See [this link](https://github.com/twbs/bootstrap/issues/16663) about an issue in bootstrap's bower. The new version of bootstrap's bower may miss the bootstrap css file in "main". So...
-* Add less task in Gruntfile.js:
-	* Add the following code into watch:{}
-	```
-		less:{
-        files:['<%=yeoman.app%>/less/**/*.less'],
-        tasks:['less']
-      }
-  ```
-  	* Add the following code under grunt.initConfig after watch:{}
-  	```
-  	less: {
-      dist: {
-        files: {
-          '<%= yeoman.app %>/styles/main.css': ['<%= yeoman.app %>/less/style.less']
-        },
-        options: {
-          sourceMap: true,
-          sourceMapFilename: '<%= yeoman.app %>/styles/main.css.map',
-          sourceMapBasepath: '<%= yeoman.app %>/',
-          sourceMapRootpath: '/'
-        }
-      }
-    },
-    ```
-	* add 'less' into concurrent:{dist:[]}
-	* add 'less' into grunt.registerTask('serve'...) under grunt.task.run([])
-	* add 'less' into grunt.registerTask('test',[]);
+###aProvider injection error after grunt minify
 
+In the deployment server, you may get this error:
 
+```Error: [$injector:unpr] Unknown provider: aProvider <- a```
 
+But it never happens on development environment.
 
+The problem is that the minified programme change the name of the variables, which cannot be recognised by angularjs. Check the following:
+
+* In ```app.js```, anything in ```app.run```,```app.config```, etc. are wrapped as arrays instead of simply ```{attribute:function(variable){}}```, this will cause problem. Change it to ```{attribute:['variable', function(varible){}]```
+* Check the same for all the services and controllers.
