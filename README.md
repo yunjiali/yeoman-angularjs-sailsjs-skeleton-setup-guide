@@ -96,6 +96,24 @@ Sometimes the ubuntu server will be in another time zone. You can check the time
 * Update sailsjs
 ```sudo npm update -g sails```
 
+## Purchasing SSL (123 Reg example)
+There are many places you can buy SSL certificate and they are many types of certificate. Here we demonstrate how to purchase a wildcard ssl from 123 Reg and make it ready for install on nginx server.
+
+* Purchase it (here)[https://www.123-reg.co.uk/ssl-certificates/wildcard-ssl-certificates.shtml]
+* Generate the csr file using openssl. [Here is the tutorial](https://www.123-reg.co.uk/support/answers/SSL-Certificates/Generate-a-CSR/generate-a-csr-apache-open-ssl-634/)
+* ```openssl genrsa -des3 -out www.mydomain.com.key 2048``` and enter your password
+* ```openssl req -new -key www.mydomain.com.key -out 
+* www.mydomain.com.csr``` **The Common Name should be *.example.com if it's a wildcard certificate**
+* Verify your CSR: ```openssl req -noout -text -in www.mydomain.com.csr```
+* Then, login to 123 reg and assign the certificate to a domain. Be sure to write ```*.example.com``` in the ```Domain``` field. And copy everything in the csr file, including the ```REQUESt BEGIN``` and ```REQUEST END``` lines.
+* **Make sure you have setup one of the required emails to receive the certificate**. [See this for the list of possible emails](https://www.123-reg.co.uk/support/answers/SSL-Certificates/Installing-your-SSL/how-do-i-apply-an-ssl-certificate-4855/). 
+* Then you will receive a email to accept the certificate.
+* After that, you will receive the certificate in an email. However, that is not the certificate you are going to apply to nginx.
+* Make sure you save both the certificate in the email and an intermediary certificate (which is public) in separate files.
+* Copy the content in the intermediary certificate into your domain certificate file, and make sure the ```REQUEST BEGINS``` of the intermediary certificate is undernethe ```REQUEST END``` of the domain certificate.
+* Copy the crt file after merge and the private key file (.key) to your vm, then you are ready to setup nginx for https.
+
+
 #Init
 
 ## Initialise git
@@ -877,6 +895,13 @@ This [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a
 * IF YOU PLAN TO COPY CLIENT TO SAILS' ASSETS FOLDER ADD THE FOLLOWING CODE:
 
 ```
+		server {
+	        listen   80; ## listen for ipv4; this line is default and implied
+	        #listen   [::]:80 default ipv6only=on; ## listen for ipv6
+	
+	        # Make site accessible from http://localhost/
+	        server_name example.com;
+
 			location / {
 				   proxy_pass http://localhost:1400;
                 proxy_http_version 1.1;
@@ -885,9 +910,61 @@ This [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
           }
+      }
 ```
 
 <strong>PLEASE NOTE: the proxy_pass should be localhost instead of 127.0.0.1</strong>
+
+* If you want to setup https WITH http (allow both of them), use the followin configuration (see [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-an-ssl-certificate-on-nginx-for-ubuntu-14-04)):
+
+```
+		server {
+	        listen   80; ## listen for ipv4; this line is default and implied
+	        listen 	443 ssl;
+	        #listen   [::]:80 default ipv6only=on; ## listen for ipv6
+	
+	        # Make site accessible from http://localhost/
+	        server_name example.com;
+			ssl_certificate /etc/nginx/ssl/yourcert.crt;
+        	ssl_certificate_key /etc/nginx/ssl/yourkey.key;
+        	
+			location / {
+				   proxy_pass http://localhost:1400;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+          }
+      }
+```
+* If you want to setup https and redirect http to https (allow only http), use the followin configuration (see [this answer use 301 redirect](http://serverfault.com/questions/250476/how-to-force-or-redirect-to-ssl-in-nginx)):
+```
+		server {
+		    listen      80;
+		    server_name example.com;
+		    return 301 https://example.com$request_uri;
+		}
+		
+		server {
+	        listen 	443 ssl;
+	        #listen   [::]:80 default ipv6only=on; ## listen for ipv6
+	
+	        # Make site accessible from http://localhost/
+	        server_name example.com;
+			ssl_certificate /etc/nginx/ssl/yourcert.crt;
+        	ssl_certificate_key /etc/nginx/ssl/yourkey.key;
+        	
+			location / {
+				   proxy_pass http://localhost:1400;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+          }
+      }
+```
 
 * After saving the configuration file, add the new configuration to sites-enabled: ```sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/example.com```
 * Remove the default website ```sudo rm /etc/nginx/sites-enabled/default```
