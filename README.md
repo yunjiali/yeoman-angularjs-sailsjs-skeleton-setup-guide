@@ -465,7 +465,7 @@ If you want to copy client app using ```grunt build```, then you need to remove 
   //}
 ```
 
-## Add login function
+## DEPRECATED Add login function 
 
 ### Client: Add Satellizer and authenticationService
 We will use [Satellizer](https://github.com/sahat/satellizer) plus a authentication service with localStorage to enable the login function.
@@ -872,6 +872,7 @@ You need to programme on the client-side to proivde:
 ## Setup Nginx
 This [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-an-node-js-app-using-sails-js-on-an-ubuntu-vps) really help
 
+* If you haven't installed nginx, use ```sudo apt-get install nginx```
 * To create a new site: ```sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/example.com```
 * ```sudo nano /etc/nginx/sites-available/example.com```
 * IF YOU PLAN TO HOST SAILSJS SEPARATELY FROM CLIENT: Add the following code:
@@ -938,7 +939,7 @@ This [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a
           }
       }
 ```
-* If you want to setup https and redirect http to https (allow only http), use the followin configuration (see [this answer use 301 redirect](http://serverfault.com/questions/250476/how-to-force-or-redirect-to-ssl-in-nginx)):
+* If you want to setup https and redirect http to https (allow only https), use the followin configuration (see [this answer use 301 redirect](http://serverfault.com/questions/250476/how-to-force-or-redirect-to-ssl-in-nginx)):
 ```
 		server {
 		    listen      80;
@@ -966,14 +967,14 @@ This [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a
       }
 ```
 
-* After saving the configuration file, add the new configuration to sites-enabled: ```sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/example.com```
+* After saving the configuration file, add the new configuration to sites-enabled: ```sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/example.com``` *BE CAREFUL!!! You have to use the full path here, not the relative path!* See this http://stackoverflow.com/questions/36366991/cannot-connect-to-aws-ec2-via-nginx-from-local-machine
 * Remove the default website ```sudo rm /etc/nginx/sites-enabled/default```
 * Restart Nginx ```sudo service nginx restart```
 * (Optional) If anything fails, check the error log ```/var/log/nginx/nginx_error.log```
 
 ### Add username password to nginx server
 * TODO: follow this tutorial https://www.digitalocean.com/community/tutorials/how-to-set-up-http-authentication-with-nginx-on-ubuntu-12-10
-
+pm2 
 ## Start the app
 * Use pm2 ```NODE_ENV=sometarget pm2 start app.js --name your_project_name --log-date-format "YYYY-MM-DD HH:mm:ss Z"```
 * Or forever ```NODE_ENV=sometarget forever start app.js```
