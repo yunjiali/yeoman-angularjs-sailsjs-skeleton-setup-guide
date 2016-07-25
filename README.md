@@ -1043,3 +1043,16 @@ The problem is that the minified programme change the name of the variables, whi
 
 * In ```app.js```, anything in ```app.run```,```app.config```, etc. are wrapped as arrays instead of simply ```{attribute:function(variable){}}```, this will cause problem. Change it to ```{attribute:['variable', function(varible){}]```
 * Check the same for all the services and controllers.
+
+###wiredep:app task problem
+
+You may get the following message when run `grunt serve`
+
+```
+Running "wiredep:app" (wiredep) task
+Warning: Cannot read property 'main' of undefined Use --force to continue.
+
+Aborted due to warnings.
+```
+
+The problem is some components are not installed properly. So try to run ```bower install`` first, the problem should be gone.
